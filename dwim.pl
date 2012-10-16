@@ -21,13 +21,8 @@ sub mangler {
     return $_;
   }
 
-  if (/^tar ft/) {
-    s/^tar ft/tar fx/;
-    return $_;
-  }
-
-  if (/^sudo /) {
-    s/^sudo //;
+  if (/^tar (ft|tf)/) {
+    s/^tar (ft|tf)/tar fx/;
     return $_;
   }
 
@@ -56,6 +51,31 @@ sub mangler {
       s/^ssh /ssh-keygen -R /;
     }
 
+    return $_;
+  }
+
+  if (/^wine /) {
+    s/^wine /WINEDEBUG="-all" wine /;
+    return $_;
+  }
+
+  if (/^sudo (service |\/etc\/init.d\/)[a-zA-Z0-9]+ stop/) {
+    s/stop/start/;
+    return $_;
+  }
+
+  if (/^sudo (service |\/etc\/init.d\/)[a-zA-Z0-9]+ start/) {
+    s/start/stop/;
+    return $_;
+  }
+
+  if (/^mkdir /) {
+    s/^mkdir /cd /;
+    return $_;
+  }
+
+  if (/^sudo /) {
+    s/^sudo //;
     return $_;
   }
 
