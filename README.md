@@ -8,13 +8,9 @@
  * `tar ft RandomFile.tar.bz2` becomes `tar fx RandomFile.tar.bz2`
  * `ssh user@hostwithnewip` becomes `ssh-keygen -R hostwithnewip`
 
-## Why does zsh-dwim run a Perl script?
+## No more Perl helper
 
-So far this is only an overgrown prototype.  I started to port the Perl back into `zsh` but the regular expression support in `zsh` seemed rather limited.  
-
-It is also just an ugly bunch of `if` statements.
-
-I hadn't planned on releasing any of this but I'm having a good time using it.  So I figured I might as well release it early and see if anyone else likes the idea as much as I do.
+The Perl helper has been ported to zsh+sed.  So far it is a tiny bit uglier but I think it will make it easier to add a few more features.  We can now easily have transformations that are aware of a previous command's exit status or move the cursor to a specific point after the transformation.
 
 ## Installation
 
