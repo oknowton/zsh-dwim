@@ -16,6 +16,20 @@ _dwim_transform() {
     return;
   fi
 
+  ## This is far from comprehensive but works for the common case
+  
+  if [[ $BUFFER =~ '^tar [A-Za-z0-9\-]*x[A-Za-z0-9]* ' ]]; then
+    local tarball
+    tarball=$(echo $BUFFER | sed -re 's/^tar [A-Za-z]+ //')
+    tarball=${(Q)tarball}
+    if [[ -e "$tarball" ]]; then
+      local newpath
+      newpath=$(tar ft $tarball | head -1)
+      BUFFER="cd $newpath"
+    fi
+    return;
+  fi
+
   if [[ $BUFFER =~ '^ssh ' ]]; then
     if [[ $BUFFER =~ '^ssh .*[A-Za-z0-9]+@([A-Za-z0-9.]+).*' ]]; then
       BUFFER=$(echo $BUFFER | sed -re 's/^ssh\s+[A-Za-z0-9]+@([A-Za-z0-9.\-]+).*/ssh-keygen -R \1/')
