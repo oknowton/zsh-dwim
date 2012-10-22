@@ -1,72 +1,86 @@
-_dwim_transform() {
+typeset -gA hash _dwim_data
 
-  if [[ $BUFFER =~ '^apt-cache (search|show)' ]]; then
-    BUFFER=$(echo $BUFFER | sed -re 's/^apt-cache (search|show)/sudo apt-get install/')
-    return;
-  fi
+_dwim_add_transform(){
+  _dwim_data[$1]="$2";
 
-  if [[ $BUFFER =~ '^scp .+:' ]]; then
-    BUFFER=$(echo $BUFFER | sed -re 's/^scp /mv /')
-    BUFFER=$(echo $BUFFER | sed -re 's/ [A-Za-z0-9@\-\.]+:.*//')
-    return;
-  fi
+  return
+}
 
-  if [[ $BUFFER =~ '^tar (ft|tf)' ]]; then
-    BUFFER=$(echo $BUFFER | sed -re 's/^tar (ft|tf)/tar fx/')
-    return;
-  fi
+_dwim_build_data() {
 
-  ## This is far from comprehensive but works for the common case
-  
-  if [[ $BUFFER =~ '^tar [A-Za-z0-9\-]*x[A-Za-z0-9]* ' ]]; then
-    local tarball
-    tarball=$(echo $BUFFER | sed -re 's/^tar [A-Za-z]+ //')
+  ## apt-cache search -> sudo apt-get install
+  _dwim_add_transform '^apt-cache (search|show)' \
+    'BUFFER=$(echo $BUFFER | sed -re "s/^apt-cache (search|show)/sudo apt-get install/")'
+
+  ## scp -> mv 
+  _dwim_add_transform '^scp .+:' \
+    'BUFFER=$(echo $BUFFER | sed -re "s/^scp /mv /"); BUFFER=$(echo $BUFFER | sed -re "s/ [A-Za-z0-9@\-\.]+:.*//")'
+
+  ## tar ft -> tar fx
+  _dwim_add_transform '^tar (ft|tf)' \
+    'BUFFER=$(echo $BUFFER | sed -re "s/^tar (ft|tf)/tar fx/")'
+
+  ## tar xf -> cd # using tarball contents
+  _dwim_add_transform '^tar [A-Za-z0-9\-]*x[A-Za-z0-9]* ' \
+    'local tarball
+    tarball=$(echo $BUFFER | sed -re "s/^tar [A-Za-z]+ //")
     tarball=${(Q)tarball}
     if [[ -e "$tarball" ]]; then
       local newpath
       newpath=$(tar ft $tarball | head -1)
       BUFFER="cd $newpath"
-    fi
-    return;
-  fi
+    fi'
 
-  if [[ $BUFFER =~ '^ssh ' ]]; then
-    if [[ $BUFFER =~ '^ssh .*[A-Za-z0-9]+@([A-Za-z0-9.]+).*' ]]; then
-      BUFFER=$(echo $BUFFER | sed -re 's/^ssh\s+[A-Za-z0-9]+@([A-Za-z0-9.\-]+).*/ssh-keygen -R \1/')
+  ## ssh -> ssh-keygen
+  _dwim_add_transform '^ssh ' \
+    'if [[ $BUFFER =~ "^ssh .*[A-Za-z0-9]+@([A-Za-z0-9.]+).*" ]]; then
+      BUFFER=$(echo $BUFFER | sed -re "s/^ssh\s+[A-Za-z0-9]+@([A-Za-z0-9.\-]+).*/ssh-keygen -R \1/")
     else
-      BUFFER=$(echo $BUFFER | sed -re 's/^ssh /ssh-keygen -R /')
+      BUFFER=$(echo $BUFFER | sed -re "s/^ssh /ssh-keygen -R /")
+    fi'
+
+  ## wine -> WINDEBUG="-all" wine
+  _dwim_add_transform '^wine ' \
+    'BUFFER=$(echo $BUFFER | sed -re "s/^wine /WINEDEBUG=\"-all\" wine /")'
+
+  ## service <> stop -> service <> start
+  _dwim_add_transform '^sudo (service |\/etc\/init.d\/)[a-zA-Z0-9]+ stop' \
+    'BUFFER=$(echo $BUFFER | sed -re "s/stop/start/")'
+
+  ## service <> start -> service <> stop
+  _dwim_add_transform '^sudo (service |\/etc\/init.d\/)[a-zA-Z0-9]+ start' \
+    'BUFFER=$(echo $BUFFER | sed -re "s/start/stop/")'
+
+  ## mkdir -> cd
+  _dwim_add_transform '^mkdir ' \
+    'BUFFER=$(echo $BUFFER | sed -re "s/^mkdir /cd /")'
+
+  ## remove sudo
+  _dwim_add_transform '^sudo ' \
+    'BUFFER=$(echo $BUFFER | sed -re "s/^sudo //")'
+
+}
+
+_dwim_build_data
+
+_dwim_transform() {
+  local regex
+  local oldbuffer
+  oldbuffer=$BUFFER
+  
+  for regex in ${(k)_dwim_data}; do
+    if [[ "$BUFFER" =~ "$regex" ]]; then
+      eval "${_dwim_data[$regex]}"
     fi
 
-    return;
-  fi
-
-  if [[ $BUFFER =~ '^wine ' ]]; then
-    BUFFER=$(echo $BUFFER | sed -re 's/^wine /WINEDEBUG="-all" wine /')
-    return;
-  fi
-
-  if [[ $BUFFER =~ '^sudo (service |\/etc\/init.d\/)[a-zA-Z0-9]+ stop' ]]; then
-    BUFFER=$(echo $BUFFER | sed -re 's/stop/start/')
-    return;
-  fi
-
-  if [[ $BUFFER =~ '^sudo (service |\/etc\/init.d\/)[a-zA-Z0-9]+ start' ]]; then
-    BUFFER=$(echo $BUFFER | sed -re 's/start/stop/')
-    return;
-  fi
-
-  if [[ $BUFFER =~ '^mkdir ' ]]; then
-    BUFFER=$(echo $BUFFER | sed -re 's/^mkdir /cd /')
-    return;
-  fi
-
-  if [[ $BUFFER =~ '^sudo ' ]]; then
-    BUFFER=$(echo $BUFFER | sed -re 's/^sudo //')
-    return;
-  fi
+    if [[ "$oldbuffer" != "$BUFFER" ]]; then
+      return
+    fi
+  done
 
   BUFFER="sudo $BUFFER"
-  
+
+  return
 }
 
 dwim() {

@@ -10,7 +10,7 @@
 
 ## No more Perl helper
 
-The Perl helper has been ported to zsh+sed.  So far it is a tiny bit uglier but I think it will make it easier to add a few more features.  We can now easily have transformations that are aware of a previous command's exit status or move the cursor to a specific point after the transformation.
+The Perl helper has been ported to zsh+sed.  All the transformations have been moved out of big 'spaghetti if' into a hash.  This will make it easy to add your own custom transformations without needing to modify the original source.
 
 ## Installation
 
