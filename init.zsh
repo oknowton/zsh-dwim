@@ -1,5 +1,9 @@
 typeset -gA hash _dwim_data
 
+_dwim_sed() {
+  BUFFER=$(echo $BUFFER | sed -re "$1")
+}
+
 _dwim_add_transform(){
   _dwim_data[$1]="$2";
 
@@ -10,20 +14,21 @@ _dwim_build_data() {
 
   ## apt-cache search -> sudo apt-get install
   _dwim_add_transform '^apt-cache (search|show)' \
-    'BUFFER=$(echo $BUFFER | sed -re "s/^apt-cache (search|show)/sudo apt-get install/")'
+    '_dwim_sed "s/^apt-cache (search|show)/sudo apt-get install/"'
 
   ## scp -> mv 
   _dwim_add_transform '^scp .+:' \
-    'BUFFER=$(echo $BUFFER | sed -re "s/^scp /mv /"); BUFFER=$(echo $BUFFER | sed -re "s/ [A-Za-z0-9@\-\.]+:.*//")'
+    '_dwim_sed "s/^scp /mv /"; _dwim_sed "s/ [A-Za-z0-9@\-\.]+:.*//"'
 
   ## tar ft -> tar fx
   _dwim_add_transform '^tar (ft|tf)' \
-    'BUFFER=$(echo $BUFFER | sed -re "s/^tar (ft|tf)/tar fx/")'
+    '_dwim_sed "s/^tar (ft|tf)/tar fx/"'
 
   ## tar xf -> cd # using tarball contents
   _dwim_add_transform '^tar [A-Za-z0-9\-]*x[A-Za-z0-9]* ' \
     'local tarball
-    tarball=$(echo $BUFFER | sed -re "s/^tar [A-Za-z]+ //")
+    _dwim_sed "s/^tar [A-Za-z]+ //"
+    tarball=$BUFFER
     tarball=${(Q)tarball}
     if [[ -e "$tarball" ]]; then
       local newpath
@@ -34,30 +39,30 @@ _dwim_build_data() {
   ## ssh -> ssh-keygen
   _dwim_add_transform '^ssh ' \
     'if [[ $BUFFER =~ "^ssh .*[A-Za-z0-9]+@([A-Za-z0-9.]+).*" ]]; then
-      BUFFER=$(echo $BUFFER | sed -re "s/^ssh\s+[A-Za-z0-9]+@([A-Za-z0-9.\-]+).*/ssh-keygen -R \1/")
+      _dwim_sed "s/^ssh\s+[A-Za-z0-9]+@([A-Za-z0-9.\-]+).*/ssh-keygen -R \1/"
     else
-      BUFFER=$(echo $BUFFER | sed -re "s/^ssh /ssh-keygen -R /")
+      _dwim_sed "s/^ssh /ssh-keygen -R /"
     fi'
 
   ## wine -> WINDEBUG="-all" wine
   _dwim_add_transform '^wine ' \
-    'BUFFER=$(echo $BUFFER | sed -re "s/^wine /WINEDEBUG=\"-all\" wine /")'
+    '_dwim_sed "s/^wine /WINEDEBUG=\"-all\" wine /"'
 
   ## service <> stop -> service <> start
   _dwim_add_transform '^sudo (service |\/etc\/init.d\/)[a-zA-Z0-9]+ stop' \
-    'BUFFER=$(echo $BUFFER | sed -re "s/stop/start/")'
+    '_dwim_sed "s/stop/start/"'
 
   ## service <> start -> service <> stop
   _dwim_add_transform '^sudo (service |\/etc\/init.d\/)[a-zA-Z0-9]+ start' \
-    'BUFFER=$(echo $BUFFER | sed -re "s/start/stop/")'
+    '_dwim_sed "s/start/stop/"'
 
   ## mkdir -> cd
   _dwim_add_transform '^mkdir ' \
-    'BUFFER=$(echo $BUFFER | sed -re "s/^mkdir /cd /")'
+    '_dwim_sed "s/^mkdir /cd /"'
 
   ## remove sudo
   _dwim_add_transform '^sudo ' \
-    'BUFFER=$(echo $BUFFER | sed -re "s/^sudo //")'
+    '_dwim_sed "s/^sudo //"'
 
 }
 
