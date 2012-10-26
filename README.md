@@ -14,7 +14,7 @@ The Perl helper has been ported to zsh+sed.  All the transformations have been m
 
 ## Installation
 
-So far it only "supports" [zprezto][https://github.com/sorin-ionescu/prezto].  It is really simple, though.  I'm sure it can easily be made to work just about anywhere.
+So far it only "supports" [zprezto](https://github.com/sorin-ionescu/prezto).  It is really simple, though.  I'm sure it can easily be made to work just about anywhere.
 
     cd .zprezto
     git submodule add https://github.com/oknowton/zsh-dwim.git modules/dwim
