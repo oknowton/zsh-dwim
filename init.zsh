@@ -43,7 +43,7 @@ _dwim_build_data() {
     else
       _dwim_sed "s/^ssh /ssh-keygen -R /"
     fi'
-
+  
   ## wine -> WINDEBUG="-all" wine
   _dwim_add_transform '^wine ' \
     '_dwim_sed "s/^wine /WINEDEBUG=\"-all\" wine /"'
@@ -60,9 +60,34 @@ _dwim_build_data() {
   _dwim_add_transform '^mkdir ' \
     '_dwim_sed "s/^mkdir /cd /"'
 
-  ## remove sudo
-  _dwim_add_transform '^sudo ' \
-    '_dwim_sed "s/^sudo //"'
+  ## mount -> umount
+  _dwim_add_transform '^sudo mount' \
+    '_dwim_sed "s/^sudo mount/sudo umount/"'
+  
+  ## umount -> mount
+  _dwim_add_transform '^sudo umount' \
+    '_dwim_sed "s/^sudo umount/sudo mount/"'
+
+  ## TODO: ls matches not very accurate
+  ## ls -<flags> <dir> -> cd <dir>
+  _dwim_add_transform '^ls -[A-Za-z0-9]+ .+' \
+    'local filename
+    _dwim_sed "s/^ls -[A-Za-z0-9]+ //"
+    filename=$BUFFER
+    filename=${(Q)filename}
+    if [[ -d "$filename" ]]; then
+      BUFFER="cd $filename"
+    fi'
+
+  ## ls <dir> -> cd <dir>
+  _dwim_add_transform '^ls [^-].*' \
+    'local filename
+    _dwim_sed "s/^ls //"
+    filename=$BUFFER
+    filename=${(Q)filename}
+    if [[ -d "$filename" ]]; then
+      BUFFER="cd $filename"
+    fi'
 
 }
 
@@ -83,7 +108,12 @@ _dwim_transform() {
     fi
   done
 
-  BUFFER="sudo $BUFFER"
+  ## TODO: rework dwim hash to eliminate this special case
+  if [[ $BUFFER =~ '^sudo ' ]]; then
+    _dwim_sed "s/^sudo //"
+  else
+    BUFFER="sudo $BUFFER"
+  fi
 
   return
 }
@@ -113,3 +143,4 @@ dwim() {
       
 zle -N dwim
 bindkey "^U" dwim
+
