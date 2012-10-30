@@ -16,6 +16,10 @@ _dwim_build_data() {
   _dwim_add_transform '^apt-cache (search|show)' \
     '_dwim_sed "s/^apt-cache (search|show)/sudo apt-get install/"'
 
+  ## sudo apt-get update -> sudo apt-get upgrade
+  _dwim_add_transform '^sudo apt-get update' \
+    '_dwim_sed "s/^sudo apt-get update/sudo apt-get upgrade/"'
+  
   ## scp -> mv 
   _dwim_add_transform '^scp .+:' \
     '_dwim_sed "s/^scp /mv /"; _dwim_sed "s/ [A-Za-z0-9@\-\.]+:.*//"'
