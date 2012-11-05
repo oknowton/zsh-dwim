@@ -1,11 +1,13 @@
-typeset -gA hash _dwim_data
+typeset -gA _dwim_data_regex
+typeset -gA _dwim_data_sed
 
 _dwim_sed() {
   BUFFER=$(echo $BUFFER | sed -re "$1")
 }
 
 _dwim_add_transform(){
-  _dwim_data[$1]="$2";
+  _dwim_data_regex[$(($#_dwim_data_regex+1))]=$1
+  _dwim_data_sed[$(($#_dwim_data_sed+1))]=$2
 
   return
 }
@@ -102,9 +104,9 @@ _dwim_transform() {
   local oldbuffer
   oldbuffer=$BUFFER
   
-  for regex in ${(k)_dwim_data}; do
-    if [[ "$BUFFER" =~ "$regex" ]]; then
-      eval "${_dwim_data[$regex]}"
+  for i in {1..${#_dwim_data_regex}}; do
+    if [[ "$BUFFER" =~ "$_dwim_data_regex[$i]" ]]; then
+      eval "$_dwim_data_sed[$i]"
     fi
 
     if [[ "$oldbuffer" != "$BUFFER" ]]; then
