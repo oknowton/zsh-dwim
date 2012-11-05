@@ -7,10 +7,8 @@
  * `apt-cache show zsh` becomes `sudo apt-get install zsh`
  * `tar ft RandomFile.tar.bz2` becomes `tar fx RandomFile.tar.bz2`
  * `ssh user@hostwithnewip` becomes `ssh-keygen -R hostwithnewip`
-
-## No more Perl helper
-
-The Perl helper has been ported to zsh+sed.  All the transformations have been moved out of big 'spaghetti if' into a hash.  This will make it easy to add your own custom transformations without needing to modify the original source.
+ * `sudo service apache stop` becomes `sudo service apache start`
+ * `mkdir new_directory` becomes `cd new_directory`
 
 ## Installation
 
