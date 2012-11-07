@@ -1,5 +1,6 @@
 typeset -gA _dwim_data_regex
 typeset -gA _dwim_data_sed
+typeset -gA _dwim_data_exitstatus
 
 _dwim_sed() {
   BUFFER=$(echo $BUFFER | sed -re "$1")
@@ -9,6 +10,12 @@ _dwim_add_transform(){
   _dwim_data_regex[$(($#_dwim_data_regex+1))]=$1
   _dwim_data_sed[$(($#_dwim_data_sed+1))]=$2
 
+  if [[ "$3" != "" ]]; then
+    _dwim_data_exitstatus[$(($#_dwim_data_exitstatus+1))]=$3
+  else
+    _dwim_data_exitstatus[$(($#_dwim_data_exitstatus+1))]="any"
+  fi
+  
   return
 }
 
@@ -48,7 +55,8 @@ _dwim_build_data() {
       _dwim_sed "s/^ssh\s+[A-Za-z0-9]+@([A-Za-z0-9.\-]+).*/ssh-keygen -R \1/"
     else
       _dwim_sed "s/^ssh /ssh-keygen -R /"
-    fi'
+    fi' \
+    255
   
   ## wine -> WINDEBUG="-all" wine
   _dwim_add_transform '^wine ' \
@@ -106,7 +114,10 @@ _dwim_transform() {
   
   for i in {1..${#_dwim_data_regex}}; do
     if [[ "$BUFFER" =~ "$_dwim_data_regex[$i]" ]]; then
-      eval "$_dwim_data_sed[$i]"
+      if [[ "$_dwim_data_exitstatus[$i]" == "$_dwim_exit_status" ||
+            "$_dwim_data_exitstatus[$i]" == "any" ]]; then
+        eval "$_dwim_data_sed[$i]"
+      fi
     fi
 
     if [[ "$oldbuffer" != "$BUFFER" ]]; then
@@ -125,15 +136,15 @@ _dwim_transform() {
 }
 
 dwim() {
+  _dwim_exit_status=$?        ## Must be stored immediately...
   local ORIGINAL_BUFFER
-  
+
   if [[ ! -n $BUFFER ]]; then
     (( HISTNO -= 1 ))
   fi
 
   ORIGINAL_BUFFER=$BUFFER
-  
-  #BUFFER=$($HOME/.zprezto/modules/dwim/dwim.pl "$BUFFER")
+
   _dwim_transform
   
   if [[ $CURSOR == $#ORIGINAL_BUFFER ]]; then
