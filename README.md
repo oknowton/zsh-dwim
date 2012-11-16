@@ -2,13 +2,15 @@
 
 `zsh-dwim` attempts to predict what you will want to do next.  It provided a key binding (control-u) that will replace the current (or previous) command line with the command you will want to run next.
 
-## Some Examples
+## Some examples
 
  * `apt-cache show zsh` becomes `sudo apt-get install zsh`
  * `tar ft RandomFile.tar.bz2` becomes `tar fx RandomFile.tar.bz2`
- * `ssh user@hostwithnewip` becomes `ssh-keygen -R hostwithnewip`
  * `sudo service apache stop` becomes `sudo service apache start`
  * `mkdir new_directory` becomes `cd new_directory`
+ * If `ssh user@hostwithnewip` fails it becomes `ssh-keygen -R hostwithnewip`
+ * If `mkdir more/than/one/path` fails it becomes `mkdir -p more/than/one/path`
+
 
 There is a short screencast demonstrating `zsh-dwim` [on my blog](http://blog.patshead.com/2012/10/cleanup-of-zsh-dwim.html).
 
