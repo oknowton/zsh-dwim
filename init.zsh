@@ -83,6 +83,11 @@ _dwim_build_data() {
   _dwim_add_transform '^mkdir ' \
     '_dwim_sed "s/^mkdir /cd /"'
 
+  ## cd -> mkdir on failure
+  _dwim_add_transform '^cd ' \
+    '_dwim_sed "s/cd /mkdir /"' \
+    1
+  
   ## mount -> umount
   _dwim_add_transform '^sudo mount' \
     '_dwim_sed "s/^sudo mount/sudo umount/"'
