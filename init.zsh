@@ -70,6 +70,15 @@ _dwim_build_data() {
   _dwim_add_transform '^sudo (service |\/etc\/init.d\/)[a-zA-Z0-9]+ start' \
     '_dwim_sed "s/start/stop/"'
 
+  ## mkdir -> mkdir -p (on failure)
+  _dwim_add_transform '^mkdir (-p){0}' \
+    '_dwim_sed "s/mkdir /mkdir -p /"' \
+    1
+
+  ## mkdir -p -> cd
+  _dwim_add_transform '^mkdir -p' \
+    '_dwim_sed "s/mkdir -p /cd /"'
+  
   ## mkdir -> cd
   _dwim_add_transform '^mkdir ' \
     '_dwim_sed "s/^mkdir /cd /"'
