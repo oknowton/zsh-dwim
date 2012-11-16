@@ -10,7 +10,7 @@
  * `mkdir new_directory` becomes `cd new_directory`
  * If `ssh user@hostwithnewip` fails it becomes `ssh-keygen -R hostwithnewip`
  * If `mkdir more/than/one/path` fails it becomes `mkdir -p more/than/one/path`
-
+ * If `cd /some/path` failes it becomes `mkdir /some/path`
 
 There is a short screencast demonstrating `zsh-dwim` [on my blog](http://blog.patshead.com/2012/10/cleanup-of-zsh-dwim.html).
 
