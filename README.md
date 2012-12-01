@@ -60,3 +60,17 @@ Anyone running `zsh` should only need to `source` the `init.zsh` file (run `sour
 ## Usage
 
 Type a command and hit `control-u` and `zsh-dwim` will attempt to transform your command.  Typing `control-u` at an empty command prompt will recall the previous command from your history and then attempt to transform it.
+
+## Creating your own transformations
+
+You can add your own transformations by calling the `_dwim_add_transform` function.  This function takes up to three parameters, the third being optional.
+
+    _dwim_add_transform <pattern to match> <code to run> [exit status of previous command]
+    
+Here's a simple example:
+
+    ## tar ft -> tar fx (a.k.a. list -> extract)
+    _dwim_add_transform '^tar (ft|tf)' \
+      '_dwim_sed "s/^tar (ft|tf)/tar fx/"'
+
+The `_dwim_sed` function is a little helped function that applies a `sed` regex to the current command.
