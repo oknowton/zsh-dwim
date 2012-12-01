@@ -117,6 +117,22 @@ _dwim_build_data() {
       BUFFER="cd $filename"
     fi'
 
+  ## vmstat -> dstat -f -> vmstat
+  _dwim_add_transform '^vmstat' \
+    '_dwim_sed "s/^vmstat/dstat -f/"'
+
+  _dwim_add_transform '^dstat -f' \
+    '_dwim_sed "s/^dstat -f/vmstat/"'
+
+  ## rsync -> rsync -aHAXS -> rsync -axHAXS
+  _dwim_add_transform '^rsync -aHAXS' \
+    '_dwim_sed "s/^rsync -aHAXS/rsync -axHAXS/"'
+
+  _dwim_add_transform '^rsync -axHAXS' \
+    '_dwim_sed "s/^rsync -axHAXS/rsync/"'
+
+  _dwim_add_transform '^rsync ' \
+    '_dwim_sed "s/^rsync /rsync -aHAXS /"'
 }
 
 _dwim_build_data
