@@ -37,6 +37,10 @@ _dwim_build_data() {
      HOST=$(echo $BUFFER | sed -re "s/^scp (.+):/\1/")
      FILE=$(ssh $HOST "ls -tF" | grep -v / | head -1)
      BUFFER="$BUFFER$FILE "'
+
+  ## ssh hostname -> scp hostname:
+  _dwim_add_transform '^ssh .+' \
+    '_dwim_sed "s/^ssh (.+)/scp \1:/"'
   
   ## scp -> mv 
   _dwim_add_transform '^scp .+:' \
