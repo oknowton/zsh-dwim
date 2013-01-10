@@ -28,6 +28,15 @@ _dwim_build_data() {
   ## sudo apt-get update -> sudo apt-get upgrade
   _dwim_add_transform '^sudo apt-get update' \
     '_dwim_sed "s/^sudo apt-get update/sudo apt-get upgrade/"'
+
+  ## scp hostname: -> scp hostname:<newest file>
+  ### Long winded, assuming no zsh on remote side
+  _dwim_add_transform '^scp .+:$' \
+    'local HOST
+     local FILE
+     HOST=$(echo $BUFFER | sed -re "s/^scp (.+):/\1/")
+     FILE=$(ssh $HOST "ls -tF" | grep -v / | head -1)
+     BUFFER="$BUFFER$FILE "'
   
   ## scp -> mv 
   _dwim_add_transform '^scp .+:' \
