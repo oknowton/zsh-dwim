@@ -2,8 +2,13 @@ typeset -gA _dwim_data_regex
 typeset -gA _dwim_data_sed
 typeset -gA _dwim_data_exitstatus
 
-_dwim_sed() {
-  BUFFER=$(echo $BUFFER | sed -re "$1")
+_dwim_sed(){
+  if (( $+commands[gsed] )); then
+      sed_bin='gsed'
+    else
+      sed_bin='sed'
+  fi
+  BUFFER=$(echo $BUFFER | $sed_bin -re "$1")
 }
 
 _dwim_add_transform(){
