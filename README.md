@@ -57,6 +57,10 @@ If you use [Antigen](https://github.com/zsh-users/antigen), I am told that addin
 
 Anyone running `zsh` should only need to `source` the `init.zsh` file (run `source init.zsh`).  If you want to permentantly "install" `zsh-dwim` just add the proper `source` command to your `.zshrc`.
 
+### Compatibility with Max OS X (and probably all the BSDs)
+
+`zsh-dwim` requires GNU `sed`'s `-r` flag.  The version of `sed` that ships with Mac OS X and FreeBSD does not support this option, so you'll have to install GNU `sed` (`gsed`) if you want to use `zsh-dwim`.
+
 ## Usage
 
 Type a command and hit `control-u` and `zsh-dwim` will attempt to transform your command.  Typing `control-u` at an empty command prompt will recall the previous command from your history and then attempt to transform it.
