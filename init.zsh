@@ -2,13 +2,21 @@ typeset -gA _dwim_data_regex
 typeset -gA _dwim_data_sed
 typeset -gA _dwim_data_exitstatus
 
-_dwim_sed(){
+if [[ $DWIM_REGEX_CMD == "" ]]; then
   if (( $+commands[gsed] )); then
-      sed_bin='gsed'
+    DWIM_REGEX_CMD='gsed -re'       # use gsed if it exists, for BSDs
+  else
+    echo | sed -re '' &> /dev/null 
+    if [[ $? == 0 ]]; then
+      DWIM_REGEX_CMD='sed -re'      # use sed if it supports the -r option
     else
-      sed_bin='sed'
+      DWIM_REGEX_CMD='perl -pe'     # otherwise, use perl
+    fi
   fi
-  BUFFER=$(echo $BUFFER | $sed_bin -re "$1")
+fi
+
+_dwim_sed(){
+  BUFFER=$(echo $BUFFER | ${=DWIM_REGEX_CMD} "$1")
 }
 
 _dwim_add_transform(){
