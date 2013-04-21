@@ -159,6 +159,18 @@ _dwim_build_data() {
 
   _dwim_add_transform '^rsync ' \
     '_dwim_sed "s/^rsync /rsync -aHAXS /"'
+
+  ## find -> find -exec echo {} \; -> find -exec {} \; -> find -print0 | xargs -0
+  _dwim_add_transform '^find .*-exec echo' \
+    '_dwim_sed "s/-exec echo/-exec/"'
+
+  _dwim_add_transform '^find .*-exec' \
+    '_dwim_sed "s/-exec/-print0 | xargs -0/"'
+
+  _dwim_add_transform '^find .*' \
+    'BUFFER="$BUFFER -exec echo {} \;"
+    (( _dwim_cursor = $#BUFFER - 5))'
+
 }
 
 _dwim_build_data
@@ -202,8 +214,11 @@ dwim() {
   ORIGINAL_BUFFER=$BUFFER
 
   _dwim_transform
-  
-  if [[ $CURSOR == $#ORIGINAL_BUFFER ]]; then
+
+  if [[ $_dwim_cursor -gt 0 ]]; then
+    CURSOR=$_dwim_cursor
+    _dwim_cursor=0
+  elif [[ $CURSOR == $#ORIGINAL_BUFFER ]]; then
     CURSOR=$#BUFFER
   elif [[ $CURSOR == 0 ]]; then
     CURSOR=0
