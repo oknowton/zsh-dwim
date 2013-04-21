@@ -165,7 +165,8 @@ _dwim_build_data() {
     '_dwim_sed "s/-exec echo/-exec/"'
 
   _dwim_add_transform '^find .*-exec' \
-    '_dwim_sed "s/-exec/-print0 | xargs -0/"'
+    '_dwim_sed "s/-exec/-print0 | xargs -0/"
+     _dwim_sed "s/\{\} \\\;//"'
 
   _dwim_add_transform '^find .*' \
     'BUFFER="$BUFFER -exec echo {} \;"
