@@ -8,11 +8,17 @@
  * `tar ft RandomFile.tar.bz2` becomes `tar fx RandomFile.tar.bz2`
  * `sudo service apache stop` becomes `sudo service apache start`
  * `mkdir new_directory` becomes `cd new_directory`
+ * `find . -size +5M` becomes `find . -size +5M -exec echo {} \;`
  * If `ssh user@hostwithnewip` fails it becomes `ssh-keygen -R hostwithnewip`
  * If `mkdir more/than/one/path` fails it becomes `mkdir -p more/than/one/path`
  * If `cd /some/path` failes it becomes `mkdir /some/path`
 
-There is a short screencast demonstrating `zsh-dwim` [on my blog](http://blog.patshead.com/2012/10/cleanup-of-zsh-dwim.html).
+
+There are some short screencasts on my blog demonstrating `zsh-dwim`:
+
+ * [Demonstration of a few of zsh-dwim's oldest features](http://blog.patshead.com/2012/10/cleanup-of-zsh-dwim.html)
+ * [Demonstration of zsh-dwim's remote filename completion](http://blog.patshead.com/2013/01/zsh-dwim-most-recent-remote-file-completion.html)
+
 
 ## Installation
 
