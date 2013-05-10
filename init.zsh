@@ -172,6 +172,18 @@ _dwim_build_data() {
     'BUFFER="$BUFFER -exec echo {} \;"
     (( _dwim_cursor = $#BUFFER - 5))'
 
+  _dwim_add_transform '^which ' \
+    'BUFFER="dpkg -S \$(/usr/bin/$BUFFER)"'
+
+  _dwim_add_transform '^dpkg -S ' \
+    'BUFFER="apt-cache show \$($BUFFER)"' ## Not ideal
+
+  _dwim_add_transform '^sudo add-apt-repository' \
+    'BUFFER="sudo apt-get update"
+     _dwim_cursor=$#BUFFER'
+
+  _dwim_add_transform '^add-apt-repository' \
+    'BUFFER="sudo $BUFFER"'
 }
 
 _dwim_build_data
