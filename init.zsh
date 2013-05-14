@@ -176,7 +176,7 @@ _dwim_build_data() {
     'BUFFER="dpkg -S \$(/usr/bin/$BUFFER)"'
 
   _dwim_add_transform '^dpkg -S ' \
-    'BUFFER="apt-cache show \$($BUFFER)"' ## Not ideal
+    'BUFFER="apt-cache show \$($BUFFER | cut -d : -f 1 )"'
 
   _dwim_add_transform '^sudo add-apt-repository' \
     'BUFFER="sudo apt-get update"
