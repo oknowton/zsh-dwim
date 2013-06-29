@@ -34,6 +34,13 @@ _dwim_add_transform(){
 
 _dwim_build_data() {
 
+  ## modprobe -> modprobe -r -> modprobe
+  _dwim_add_transform '^(sudo modprobe |modprobe )-r' \
+    '_dwim_sed "s/ -r//"'
+
+    _dwim_add_transform '^(sudo modprobe |modprobe )' \
+    '_dwim_sed "s/modprobe/modprobe -r/"'
+
   ## watch -> watch -n 10 -> watch -n 30
   _dwim_add_transform '^(sudo watch |watch )-n 10' \
     '_dwim_sed "s/ -n 10/ -n 30/"'
