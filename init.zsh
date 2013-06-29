@@ -34,6 +34,16 @@ _dwim_add_transform(){
 
 _dwim_build_data() {
 
+  ## watch -> watch -n 10 -> watch -n 30
+  _dwim_add_transform '^(sudo watch |watch )-n 10' \
+    '_dwim_sed "s/ -n 10/ -n 30/"'
+
+  _dwim_add_transform '^(sudo watch |watch )-n 30' \
+    '_dwim_sed "s/ -n 30//"'
+
+  _dwim_add_transform '^(sudo watch |watch )' \
+    '_dwim_sed "s/watch/watch -n 10/"'
+
   ## apt-cache search -> sudo apt-get install
   _dwim_add_transform '^apt-cache (search|show)' \
     '_dwim_sed "s/^apt-cache (search|show)/sudo apt-get install/"'
