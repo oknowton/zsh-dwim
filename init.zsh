@@ -42,6 +42,11 @@ _dwim_build_data() {
   _dwim_add_transform '^sudo apt-get update' \
     '_dwim_sed "s/^sudo apt-get update/sudo apt-get upgrade/"'
 
+  ## failed dpkg --install -> apt-get -f install
+  _dwim_add_transform '^sudo dpkg --install' \
+    'BUFFER="sudo apt-get -f install"' \
+    1
+  
   ## scp hostname: -> scp hostname:<newest file>
   ### Long winded, assuming no zsh on remote side
   _dwim_add_transform '^scp .+:$' \
