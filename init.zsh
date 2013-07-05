@@ -19,9 +19,36 @@ _dwim_sed(){
   BUFFER=$(echo $BUFFER | ${=DWIM_REGEX_CMD} "$1")
 }
 
-_dwim_add_transform(){
+_dwim_prepend_transform() {
   _dwim_data_regex[$(($#_dwim_data_regex+1))]=$1
   _dwim_data_sed[$(($#_dwim_data_sed+1))]=$2
+
+  if [[ "$3" != "" ]]; then
+    _dwim_data_exitstatus[$(($#_dwim_data_exitstatus+1))]=$3
+  else
+    _dwim_data_exitstatus[$(($#_dwim_data_exitstatus+1))]="any"
+  fi
+  
+  return
+}
+
+_dwim_add_transform() {
+  local regex_tmp
+  local sed_tmp
+  regex_tmp=($_dwim_data_regex)
+  sed_tmp=($_dwim_data_sed)
+
+  _dwim_data_regex=()
+  _dwim_data_regex[1]=$1
+  for i in {1..${#regex_tmp}}; do
+    _dwim_data_regex[$(($i+1))]=$regex_tmp[$i]
+  done
+
+  _dwim_data_sed=()
+  _dwim_data_sed[1]=$2
+  for i in {1..${#sed_tmp}}; do
+    _dwim_data_sed[$(($i+1))]=$regex_sed[$i]
+  done
 
   if [[ "$3" != "" ]]; then
     _dwim_data_exitstatus[$(($#_dwim_data_exitstatus+1))]=$3
@@ -35,38 +62,38 @@ _dwim_add_transform(){
 _dwim_build_data() {
 
   ## modprobe -> modprobe -r -> modprobe
-  _dwim_add_transform '^(sudo modprobe |modprobe )-r' \
+  _dwim_prepend_transform '^(sudo modprobe |modprobe )-r' \
     '_dwim_sed "s/ -r//"'
 
-    _dwim_add_transform '^(sudo modprobe |modprobe )' \
+  _dwim_prepend_transform '^(sudo modprobe |modprobe )' \
     '_dwim_sed "s/modprobe/modprobe -r/"'
 
   ## watch -> watch -n 10 -> watch -n 30
-  _dwim_add_transform '^(sudo watch |watch )-n 10' \
+  _dwim_prepend_transform '^(sudo watch |watch )-n 10' \
     '_dwim_sed "s/ -n 10/ -n 30/"'
 
-  _dwim_add_transform '^(sudo watch |watch )-n 30' \
+  _dwim_prepend_transform '^(sudo watch |watch )-n 30' \
     '_dwim_sed "s/ -n 30//"'
 
-  _dwim_add_transform '^(sudo watch |watch )' \
+  _dwim_prepend_transform '^(sudo watch |watch )' \
     '_dwim_sed "s/watch/watch -n 10/"'
 
   ## apt-cache search -> sudo apt-get install
-  _dwim_add_transform '^apt-cache (search|show)' \
+  _dwim_prepend_transform '^apt-cache (search|show)' \
     '_dwim_sed "s/^apt-cache (search|show)/sudo apt-get install/"'
 
   ## sudo apt-get update -> sudo apt-get upgrade
-  _dwim_add_transform '^sudo apt-get update' \
+  _dwim_prepend_transform '^sudo apt-get update' \
     '_dwim_sed "s/^sudo apt-get update/sudo apt-get upgrade/"'
 
   ## failed dpkg --install -> apt-get -f install
-  _dwim_add_transform '^sudo dpkg --install' \
+  _dwim_prepend_transform '^sudo dpkg --install' \
     'BUFFER="sudo apt-get -f install"' \
     1
   
   ## scp hostname: -> scp hostname:<newest file>
   ### Long winded, assuming no zsh on remote side
-  _dwim_add_transform '^scp .+:$' \
+  _dwim_prepend_transform '^scp .+:$' \
     'local HOST
      local FILE
      HOST=$(echo $BUFFER | sed -re "s/^scp (.+):/\1/")
@@ -74,19 +101,19 @@ _dwim_build_data() {
      BUFFER="$BUFFER\"$FILE\" "'
 
   ## ssh hostname -> scp hostname:
-  _dwim_add_transform '^ssh .+' \
+  _dwim_prepend_transform '^ssh .+' \
     '_dwim_sed "s/^ssh (.+)/scp \1:/"'
   
   ## scp -> mv 
-  _dwim_add_transform '^scp .+:' \
+  _dwim_prepend_transform '^scp .+:' \
     '_dwim_sed "s/^scp /mv /"; _dwim_sed "s/ [A-Za-z0-9@\-\.]+:.*//"'
 
   ## tar ft -> tar fx
-  _dwim_add_transform '^tar (ft|tf)' \
+  _dwim_prepend_transform '^tar (ft|tf)' \
     '_dwim_sed "s/^tar (ft|tf)/tar fx/"'
 
   ## tar xf -> cd # using tarball contents
-  _dwim_add_transform '^tar [A-Za-z0-9\-]*x[A-Za-z0-9]* ' \
+  _dwim_prepend_transform '^tar [A-Za-z0-9\-]*x[A-Za-z0-9]* ' \
     'local tarball
     _dwim_sed "s/^tar [A-Za-z]+ //"
     tarball=$BUFFER
@@ -98,7 +125,7 @@ _dwim_build_data() {
     fi'
 
   ## ssh -> ssh-keygen
-  _dwim_add_transform '^ssh ' \
+  _dwim_prepend_transform '^ssh ' \
     'if [[ $BUFFER =~ "^ssh .*[A-Za-z0-9]+@([A-Za-z0-9.]+).*" ]]; then
       _dwim_sed "s/^ssh\s+[A-Za-z0-9]+@([A-Za-z0-9.\-]+).*/ssh-keygen -R \1/"
     else
@@ -107,46 +134,46 @@ _dwim_build_data() {
     255
   
   ## wine -> WINDEBUG="-all" wine
-  _dwim_add_transform '^wine ' \
+  _dwim_prepend_transform '^wine ' \
     '_dwim_sed "s/^wine /WINEDEBUG=\"-all\" wine /"'
 
   ## service <> stop -> service <> start
-  _dwim_add_transform '^sudo (service |\/etc\/init.d\/)[a-zA-Z0-9]+ stop' \
+  _dwim_prepend_transform '^sudo (service |\/etc\/init.d\/)[a-zA-Z0-9]+ stop' \
     '_dwim_sed "s/stop/start/"'
 
   ## service <> start -> service <> stop
-  _dwim_add_transform '^sudo (service |\/etc\/init.d\/)[a-zA-Z0-9]+ start' \
+  _dwim_prepend_transform '^sudo (service |\/etc\/init.d\/)[a-zA-Z0-9]+ start' \
     '_dwim_sed "s/start/stop/"'
 
   ## mkdir -> mkdir -p (on failure)
-  _dwim_add_transform '^mkdir (-p){0}' \
+  _dwim_prepend_transform '^mkdir (-p){0}' \
     '_dwim_sed "s/mkdir /mkdir -p /"' \
     1
 
   ## mkdir -p -> cd
-  _dwim_add_transform '^mkdir -p' \
+  _dwim_prepend_transform '^mkdir -p' \
     '_dwim_sed "s/mkdir -p /cd /"'
   
   ## mkdir -> cd
-  _dwim_add_transform '^mkdir ' \
+  _dwim_prepend_transform '^mkdir ' \
     '_dwim_sed "s/^mkdir /cd /"'
 
   ## cd -> mkdir on failure
-  _dwim_add_transform '^cd ' \
+  _dwim_prepend_transform '^cd ' \
     '_dwim_sed "s/cd /mkdir /"' \
     1
   
   ## mount -> umount
-  _dwim_add_transform '^sudo mount' \
+  _dwim_prepend_transform '^sudo mount' \
     '_dwim_sed "s/^sudo mount/sudo umount/"'
   
   ## umount -> mount
-  _dwim_add_transform '^sudo umount' \
+  _dwim_prepend_transform '^sudo umount' \
     '_dwim_sed "s/^sudo umount/sudo mount/"'
 
   ## TODO: ls matches not very accurate
   ## ls -<flags> <dir> -> cd <dir>
-  _dwim_add_transform '^ls -[A-Za-z0-9]+ .+' \
+  _dwim_prepend_transform '^ls -[A-Za-z0-9]+ .+' \
     'local filename
     _dwim_sed "s/^ls -[A-Za-z0-9]+ //"
     filename=$BUFFER
@@ -156,7 +183,7 @@ _dwim_build_data() {
     fi'
 
   ## ls <dir> -> cd <dir>
-  _dwim_add_transform '^ls [^-].*' \
+  _dwim_prepend_transform '^ls [^-].*' \
     'local filename
     _dwim_sed "s/^ls //"
     filename=$BUFFER
@@ -166,45 +193,45 @@ _dwim_build_data() {
     fi'
 
   ## vmstat -> dstat -f -> vmstat
-  _dwim_add_transform '^vmstat' \
+  _dwim_prepend_transform '^vmstat' \
     '_dwim_sed "s/^vmstat/dstat -f/"'
 
-  _dwim_add_transform '^dstat -f' \
+  _dwim_prepend_transform '^dstat -f' \
     '_dwim_sed "s/^dstat -f/vmstat/"'
 
   ## rsync -> rsync -aHAXS -> rsync -axHAXS
-  _dwim_add_transform '^rsync -aHAXS' \
+  _dwim_prepend_transform '^rsync -aHAXS' \
     '_dwim_sed "s/^rsync -aHAXS/rsync -axHAXS/"'
 
-  _dwim_add_transform '^rsync -axHAXS' \
+  _dwim_prepend_transform '^rsync -axHAXS' \
     '_dwim_sed "s/^rsync -axHAXS/rsync/"'
 
-  _dwim_add_transform '^rsync ' \
+  _dwim_prepend_transform '^rsync ' \
     '_dwim_sed "s/^rsync /rsync -aHAXS /"'
 
   ## find -> find -exec echo {} \; -> find -exec {} \; -> find -print0 | xargs -0
-  _dwim_add_transform '^find .*-exec echo' \
+  _dwim_prepend_transform '^find .*-exec echo' \
     '_dwim_sed "s/-exec echo/-exec/"'
 
-  _dwim_add_transform '^find .*-exec' \
+  _dwim_prepend_transform '^find .*-exec' \
     '_dwim_sed "s/-exec/-print0 | xargs -0/"
      _dwim_sed "s/\{\} \\\;//"'
 
-  _dwim_add_transform '^find .*' \
+  _dwim_prepend_transform '^find .*' \
     'BUFFER="$BUFFER -exec echo {} \;"
     (( _dwim_cursor = $#BUFFER - 5))'
 
-  _dwim_add_transform '^which ' \
+  _dwim_prepend_transform '^which ' \
     'BUFFER="dpkg -S \$(/usr/bin/$BUFFER)"'
 
-  _dwim_add_transform '^dpkg -S ' \
+  _dwim_prepend_transform '^dpkg -S ' \
     'BUFFER="apt-cache show \$($BUFFER | cut -d : -f 1 )"'
 
-  _dwim_add_transform '^sudo add-apt-repository' \
+  _dwim_prepend_transform '^sudo add-apt-repository' \
     'BUFFER="sudo apt-get update"
      _dwim_cursor=$#BUFFER'
 
-  _dwim_add_transform '^add-apt-repository' \
+  _dwim_prepend_transform '^add-apt-repository' \
     'BUFFER="sudo $BUFFER"'
 }
 
