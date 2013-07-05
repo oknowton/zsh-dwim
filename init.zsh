@@ -1,6 +1,6 @@
-typeset -gA _dwim_data_regex
-typeset -gA _dwim_data_sed
-typeset -gA _dwim_data_exitstatus
+typeset -ga _dwim_data_regex
+typeset -ga _dwim_data_sed
+typeset -ga _dwim_data_exitstatus
 
 if [[ $DWIM_REGEX_CMD == "" ]]; then
   if (( $+commands[gsed] )); then
@@ -35,9 +35,14 @@ _dwim_prepend_transform() {
 _dwim_add_transform() {
   local regex_tmp
   local sed_tmp
-  regex_tmp=($_dwim_data_regex)
-  sed_tmp=($_dwim_data_sed)
+  local i
 
+  typeset -a regex_tmp
+  typeset -a sed_tmp
+  
+  regex_tmp=($_dwim_data_regex)
+  sed_tmp=($_dwim_data_sed)      
+  
   _dwim_data_regex=()
   _dwim_data_regex[1]="$1"
   for i in {1..${#regex_tmp}}; do
