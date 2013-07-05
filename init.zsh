@@ -39,15 +39,15 @@ _dwim_add_transform() {
   sed_tmp=($_dwim_data_sed)
 
   _dwim_data_regex=()
-  _dwim_data_regex[1]=$1
+  _dwim_data_regex[1]="$1"
   for i in {1..${#regex_tmp}}; do
-    _dwim_data_regex[$(($i+1))]=$regex_tmp[$i]
+    _dwim_data_regex[$(($i+1))]="$regex_tmp[$i]"
   done
 
   _dwim_data_sed=()
-  _dwim_data_sed[1]=$2
+  _dwim_data_sed[1]="$2"
   for i in {1..${#sed_tmp}}; do
-    _dwim_data_sed[$(($i+1))]=$regex_sed[$i]
+    _dwim_data_sed[$(($i+1))]="$regex_sed[$i]"
   done
 
   if [[ "$3" != "" ]]; then
