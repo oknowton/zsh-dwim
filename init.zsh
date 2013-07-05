@@ -35,14 +35,25 @@ _dwim_prepend_transform() {
 _dwim_add_transform() {
   local regex_tmp
   local sed_tmp
+  local exitstatus_tmp
   local i
 
   typeset -a regex_tmp
   typeset -a sed_tmp
+  typeset -a exitstatus_tmp
   
-  regex_tmp=($_dwim_data_regex)
-  sed_tmp=($_dwim_data_sed)      
-  
+  for i in {1..${#_dwim_data_regex}}; do
+    regex_tmp[$i]="$_dwim_data_regex[$i]"
+  done
+
+  for i in {1..${#_dwim_data_sed}}; do
+    sed_tmp[$i]="$_dwim_data_sed[$i]"
+  done
+
+  for i in {1..${#_dwim_data_exitstatus}}; do
+    exitstatus_tmp[$i]="$_dwim_data_exitstatus[$i]"
+  done
+
   _dwim_data_regex=()
   _dwim_data_regex[1]="$1"
   for i in {1..${#regex_tmp}}; do
@@ -52,13 +63,18 @@ _dwim_add_transform() {
   _dwim_data_sed=()
   _dwim_data_sed[1]="$2"
   for i in {1..${#sed_tmp}}; do
-    _dwim_data_sed[$(($i+1))]="$regex_sed[$i]"
+    _dwim_data_sed[$(($i+1))]="$sed_tmp[$i]"
+  done
+
+  _dwim_data_exitstatus=()
+  for i in {1..${#exitstatus_tmp}}; do
+    _dwim_data_exitstatus[$(($i+1))]="$exitstatus_tmp[$i]"
   done
 
   if [[ "$3" != "" ]]; then
-    _dwim_data_exitstatus[$(($#_dwim_data_exitstatus+1))]=$3
+    _dwim_data_exitstatus[1]=$3
   else
-    _dwim_data_exitstatus[$(($#_dwim_data_exitstatus+1))]="any"
+    _dwim_data_exitstatus[1]="any"
   fi
   
   return
