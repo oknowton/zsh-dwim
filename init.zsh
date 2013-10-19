@@ -112,6 +112,15 @@ _dwim_build_data() {
     'BUFFER="sudo apt-get -f install"' \
     1
   
+  ## ssh -> ssh-keygen
+  _dwim_prepend_transform '^ssh ' \
+    'if [[ $BUFFER =~ "^ssh .*[A-Za-z0-9]+@([A-Za-z0-9.]+).*" ]]; then
+      _dwim_sed "s/^ssh\s+[A-Za-z0-9]+@([A-Za-z0-9.\-]+).*/ssh-keygen -R \1/"
+    else
+      _dwim_sed "s/^ssh /ssh-keygen -R /"
+    fi' \
+    255
+  
   ## scp hostname: -> scp hostname:<newest file>
   ### Long winded, assuming no zsh on remote side
   _dwim_prepend_transform '^scp .+:$' \
@@ -145,15 +154,6 @@ _dwim_build_data() {
       BUFFER="cd $newpath"
     fi'
 
-  ## ssh -> ssh-keygen
-  _dwim_prepend_transform '^ssh ' \
-    'if [[ $BUFFER =~ "^ssh .*[A-Za-z0-9]+@([A-Za-z0-9.]+).*" ]]; then
-      _dwim_sed "s/^ssh\s+[A-Za-z0-9]+@([A-Za-z0-9.\-]+).*/ssh-keygen -R \1/"
-    else
-      _dwim_sed "s/^ssh /ssh-keygen -R /"
-    fi' \
-    255
-  
   ## wine -> WINDEBUG="-all" wine
   _dwim_prepend_transform '^wine ' \
     '_dwim_sed "s/^wine /WINEDEBUG=\"-all\" wine /"'
