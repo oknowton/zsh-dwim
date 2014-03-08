@@ -82,6 +82,11 @@ _dwim_add_transform() {
 
 _dwim_build_data() {
 
+  ## cat /proc/sys/* -> echo _ | sudo tee /proc/sys/*
+  _dwim_prepend_transform '^cat /proc/sys/' \
+    '_dwim_sed "s/cat (\/proc\/sys\/.*)/echo  | sudo tee \1/"
+     _dwim_cursor=5'
+
   ## modprobe -> modprobe -r -> modprobe
   _dwim_prepend_transform '^(sudo modprobe |modprobe )-r' \
     '_dwim_sed "s/ -r//"'
