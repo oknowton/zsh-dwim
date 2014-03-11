@@ -82,11 +82,15 @@ _dwim_add_transform() {
 
 _dwim_build_data() {
 
-  ## cat /proc/sys/* -> echo _ | sudo tee /proc/sys/*
-  _dwim_prepend_transform '^cat /proc/sys/' \
-    '_dwim_sed "s/cat (\/proc\/sys\/.*)/echo  | sudo tee \1/"
-     _dwim_cursor=5'
-
+  ## cat /proc/sys/* or /sys/* -> echo _ | sudo tee /proc/sys/*
+  _dwim_prepend_transform '^cat ' \
+     'if [[ $PWD =~ "(/proc/sys/|/sys/)" ]]; then
+        _dwim_sed "s/cat (.*)/echo  | sudo tee \1/"
+      else
+        _dwim_sed "s/cat ((\/proc)?\/sys\/.*)/echo  | sudo tee \1/"
+      fi
+      _dwim_cursor=5'
+                          
   ## modprobe -> modprobe -r -> modprobe
   _dwim_prepend_transform '^(sudo modprobe |modprobe )-r' \
     '_dwim_sed "s/ -r//"'
