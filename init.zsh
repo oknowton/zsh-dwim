@@ -90,7 +90,11 @@ _dwim_build_data() {
         _dwim_sed "s/cat ((\/proc)?\/sys\/.*)/echo  | sudo tee \1/"
       fi
       _dwim_cursor=5'
-                          
+
+  ## echo _ > -> echo _ | sudo tee 
+  _dwim_prepend_transform '^echo.*\> ' \
+     '_dwim_sed "s/>/|sudo tee /"'
+  
   ## modprobe -> modprobe -r -> modprobe
   _dwim_prepend_transform '^(sudo modprobe |modprobe )-r' \
     '_dwim_sed "s/ -r//"'
