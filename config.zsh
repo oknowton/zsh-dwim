@@ -7,12 +7,12 @@ bindkey "^U" dwim
 ## Checks exist to make sure inappropriate transformations aren't
 ## offered when the zsh-dwim key is pressed
 
-[[ -e "$(which apt-get)" ]] &&
+hash apt-get &>/dev/null &&
   source "$_dwim_transform_dir/apt.zsh"
 
 source "$_dwim_transform_dir/cd.zsh"
 
-[[ -e "$(which dstat)" ]] &&
+hash dstat &>/dev/null &&
   source "$_dwim_transform_dir/dstat.zsh"
 
 source "$_dwim_transform_dir/echo.zsh"
@@ -21,23 +21,24 @@ source "$_dwim_transform_dir/find.zsh"
 
 source "$_dwim_transform_dir/ls.zsh"
 
-[[ -e "$(which modprobe)" ]] &&
+hash modprobe &>/dev/null &&
   source "$_dwim_transform_dir/modprobe.zsh"
 
-[[ -e "$(which mount)" ]] &&
+hash mount &>/dev/null &&
   source "$_dwim_transform_dir/mount.zsh"
 
-[[ -e "$(which rsync)" ]] &&
+hash rsync &>/dev/null &&
   source "$_dwim_transform_dir/rsync.zsh"
 
-[[ -e "$(which ssh)" ]] &&
+hash ssh &>/dev/null &&
   source "$_dwim_transform_dir/ssh.zsh"
 
-[[ -e "$(which service)" ]] &&
+hash service &>/dev/null &&
   source "$_dwim_transform_dir/service.zsh"
 
 source "$_dwim_transform_dir/tar.zsh"
 
-[[ -e "$(which wine)" ]] &&
+hash wine &>/dev/null &&
   source "$_dwim_transform_dir/wine.zsh"
 
+  
