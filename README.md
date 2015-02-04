@@ -105,4 +105,4 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-![piwik](http://serverswarm.com/piwik/piwik.php?idsite=2&rec=1&idgoal=4&action_name=oknowton%2Fzsh-dwim%20at%20GitHub.com&url=https%3A%2F%2Fgithub.com%2Foknowton%2Fzsh-dwim)
+![piwik](http://serverswarm.com/piwik/piwik.php?idsite=2&rec=1&action_name=oknowton%2Fzsh-dwim%20at%20GitHub.com&url=https%3A%2F%2Fgithub.com%2Foknowton%2Fzsh-dwim)
