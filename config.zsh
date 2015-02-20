@@ -12,6 +12,10 @@ hash apt-get &>/dev/null &&
 
 source "$_dwim_transform_dir/cd.zsh"
 
+source "$_dwim_transform_dir/chmod.zsh"
+
+source "$_dwim_transform_dir/chattr.zsh"
+
 hash dstat &>/dev/null &&
   source "$_dwim_transform_dir/dstat.zsh"
 
@@ -41,4 +45,3 @@ source "$_dwim_transform_dir/tar.zsh"
 hash wine &>/dev/null &&
   source "$_dwim_transform_dir/wine.zsh"
 
-  
