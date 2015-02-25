@@ -1,6 +1,6 @@
 # zsh-dwim - A "Do What I Mean" Key
 
-`zsh-dwim` attempts to predict what you will want to do next.  It provided a key binding (control-u) that will replace the current (or previous) command line with the command you will want to run next.
+`zsh-dwim` attempts to predict what you will want to do next.  It provides a key binding (control-u) that will replace the current (or previous) command line with the command you will want to run next.
 
 ## Some examples
 
