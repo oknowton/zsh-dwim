@@ -8,7 +8,7 @@
  * `tar ft RandomFile.tar.bz2` becomes `tar fx RandomFile.tar.bz2`
  * `sudo service apache stop` becomes `sudo service apache start`
  * `mkdir new_directory` becomes `cd new_directory`
- * `find . -size +5M` becomes `find . -size +5M -exec echo {} \;`
+ * `find . -size +5M` becomes `find . -size +5M -exec echo {} \;` becomes `find . -size +5M -exec {} \;`
  * If `ssh user@hostwithnewip` fails it becomes `ssh-keygen -R hostwithnewip`
  * If `mkdir more/than/one/path` fails it becomes `mkdir -p more/than/one/path`
  * If `cd /some/path` failes it becomes `mkdir /some/path`
