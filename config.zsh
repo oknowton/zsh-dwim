@@ -34,6 +34,8 @@ hash mount &>/dev/null &&
 hash rsync &>/dev/null &&
   source "$_dwim_transform_dir/rsync.zsh"
 
+source "$_dwim_transform_dir/rm.zsh"
+
 hash ssh &>/dev/null &&
   source "$_dwim_transform_dir/ssh.zsh"
 
