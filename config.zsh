@@ -31,6 +31,8 @@ hash modprobe &>/dev/null &&
 hash mount &>/dev/null &&
   source "$_dwim_transform_dir/mount.zsh"
 
+source "$_dwim_transform_dir/mv.zsh"
+
 hash rsync &>/dev/null &&
   source "$_dwim_transform_dir/rsync.zsh"
 
