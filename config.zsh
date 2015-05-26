@@ -23,7 +23,8 @@ source "$_dwim_transform_dir/echo.zsh"
 
 source "$_dwim_transform_dir/find.zsh"
 
-source "$_dwim_transform_dir/git.zsh"
+hash git &>/dev/null &&
+  source "$_dwim_transform_dir/git.zsh"
 
 source "$_dwim_transform_dir/ls.zsh"
 
