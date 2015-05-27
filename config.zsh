@@ -12,6 +12,8 @@ hash apt-get &>/dev/null &&
 
 source "$_dwim_transform_dir/cd.zsh"
 
+source "$_dwim_transform_dir/cp.zsh"
+
 source "$_dwim_transform_dir/chmod.zsh"
 
 source "$_dwim_transform_dir/chattr.zsh"
