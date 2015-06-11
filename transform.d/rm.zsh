@@ -12,3 +12,8 @@ _dwim_add_transform '^rm -f' \
 _dwim_add_transform '^rm -rf' \
   '_dwim_sed "s/^rm -rf /sudo rm -rf /"' \
   1
+
+## rmdir -> rm -rf (on failure)
+_dwim_add_transform '^rmdir ' \
+  '_dwim_sed "s/^rmdir /rm -rf /"' \
+  1
